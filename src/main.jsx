@@ -6,13 +6,14 @@ import App from './App.jsx'
 import About from './pages/about.jsx';
 import Contact from './pages/contact.jsx';
 import Home from './pages/home.jsx';
+import { UlbProvider } from './context/UlbContex.jsx';
 
 const router = createBrowserRouter([
- {
+  {
     path: "/",
-    element: <App />,   
+    element: <App />,
     children: [
-      { index: true, element: <Home /> },  
+      { index: true, element: <Home /> },
       { path: "about", element: <About /> },
       { path: "contact", element: <Contact /> },
     ],
@@ -21,6 +22,8 @@ const router = createBrowserRouter([
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <UlbProvider>
+      <RouterProvider router={router} />
+    </UlbProvider>
   </StrictMode>
 );

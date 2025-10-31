@@ -1,7 +1,7 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useContext } from "react";
 import { StatCard } from "@/components/stat-card";
 import { motion } from "framer-motion";
-import { useEffect } from "react";
+import { UlbContext } from '../context/UlbContex.jsx';
 
 // Dashboard config
 const DASH_CODES = {
@@ -22,7 +22,6 @@ const DASH_CODES = {
 // Format helper
 const getFormattedValue = (value, type) => {
   if (!Number.isFinite(value)) return "-";
-
   const v = Number(value);
 
   switch (type) {
@@ -33,35 +32,43 @@ const getFormattedValue = (value, type) => {
   }
 };
 
-// Convert compact API string -> object
+// Convert compact API string -> object (FIXED)
 const parseCompactString = (str = "") =>
   str.split("#").reduce((acc, block) => {
     if (!block) return acc;
     const [code, ...nums] = block.split("$");
-    acc[code] = nums.map(n => Number(n));
+    acc[code] = nums.map(n => (n === "" ? 0 : Number(n))); // ✅ Empty → 0
     return acc;
   }, {});
 
 export default function Home() {
   const [compactString, setCompactString] = useState("");
+  const { ulbID } = useContext(UlbContext);
 
-useEffect(() => {
-  fetch("http://localhost:5000/api/dashboard?ulbId=4")
-    .then(res => res.json())
-    .then(data => setCompactString(data.data))
-    .catch(err => console.error(err));
-}, []);
+  useEffect(() => {
+    if (!ulbID) return;
 
+    const url = `http://localhost:5000/dashboard?ulbId=${encodeURIComponent(ulbID)}`;
+    
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        setCompactString(data.data);
+      })
+      .catch(err => console.error("Failed fetching dashboard:", err));
+  }, [ulbID]);
+
+  // ✅ Log after state update
+  // useEffect(() => {
+  //   console.log("Updated compactString 👉", compactString);
+  // }, [compactString]);
 
   const cardsData = useMemo(() => {
     const data = parseCompactString(compactString);
     const defaultIcon = "https://nagarkaryavali.com/ANCL_Dashboard/Images/Property_Tax.png";
 
-    return Object.entries(DASH_CODES).map(([code, cfg]) => {  //[code:RTS/MKT],[cfg:lavel, format,title]
-      // console.log("code:", code)
-      // console.log("cfg:" ,cfg)
-      const values = data[code] || [];  //Example:  [0,0,0] = data["PTAX"]
-      // console.log("values",values)
+    return Object.entries(DASH_CODES).map(([code, cfg]) => {
+      const values = data[code] || [];
       const stats = cfg.labels.map((label, i) => ({
         label,
         value: getFormattedValue(values[i], cfg.formats[i])
@@ -73,18 +80,18 @@ useEffect(() => {
 
   return (
     <main className="min-h-screen premium-gradient">
-        <div className="md:max-w-7xl mx-auto p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {cardsData.map((card, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <StatCard {...card} />
-            </motion.div>
-          ))}
-        </div>
+      <div className="md:max-w-7xl mx-auto p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {cardsData.map((card, idx) => (
+          <motion.div
+            key={idx}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <StatCard {...card} />
+          </motion.div>
+        ))}
+      </div>
     </main>
   );
 }
