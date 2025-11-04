@@ -84,7 +84,7 @@ export default function Dropdown() {
   const { ulbID, setUlbID, corporationOptions = [] } = useContext(UlbContext);
   const [selectedLabel, setSelectedLabel] = useState("-- Select ULB --");
   const navigate = useNavigate();
-
+  // console.log(corporationOptions)
   useEffect(() => {
     const match = corporationOptions.find((o) => String(o.value) === String(ulbID));
     if (match) setSelectedLabel(match.label);
@@ -93,7 +93,9 @@ export default function Dropdown() {
 
   const handleSelect = (option) => {
     const id = String(option.value);
+    console.log("Dropdown.handleSelect — option:", option, "newId:", id); 
     setUlbID(id);
+    // console.log("ulbID:",ulbID)
     setSelectedLabel(option.label);
     const path = option.path || "/";
     navigate(`${path}?ulbId=${encodeURIComponent(id)}`, { replace: true });
@@ -107,7 +109,7 @@ export default function Dropdown() {
         <motion.button
           whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.995 }}
-          className="flex items-center gap-3 w-92 md:w-92 px-4 py-2 text-left bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition"
+          className="flex cursor-pointer items-center gap-3 w-92 md:w-92 px-4 py-2 text-left bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition"
           disabled={isLoading}
         >
           <div className="flex items-center gap-3">
@@ -115,8 +117,8 @@ export default function Dropdown() {
               {selectedLabel && selectedLabel !== "-- Select ULB --" ? selectedLabel.charAt(0) : "U"}
             </div>
             <div className="truncate">
-              <h1 className="text-sm text-gray-800 text-center">{isLoading ? "Loading ULBs..." : selectedLabel}</h1>
-              <h1 className="text-xs text-gray-400 ">Tap to switch municipal body</h1>
+              <div className="text-sm text-gray-800 text-center">{isLoading ? "Loading ULBs..." : selectedLabel}</div>
+              <div className="text-xs text-gray-400 ">Tap to switch municipal body</div>
             </div>
           </div>
         </motion.button>

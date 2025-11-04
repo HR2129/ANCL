@@ -29,6 +29,7 @@
 
 import React, { createContext, useState } from "react";
 import { DEFAULT_ULB_ID } from '../types/constatnts.js';
+import { useEffect } from "react";
 
 
 export const UlbContext = createContext({
@@ -42,6 +43,9 @@ export function UlbProvider({ children }) {
   const [ulbID, setUlbID] = useState(DEFAULT_ULB_ID);
   const [corporationOptions, setCorporationOptions] = useState([]);
 
+  useEffect(() => {
+    console.log("UlbProvider — ulbID changed:", ulbID);
+  }, [ulbID]);
   return (
     <UlbContext.Provider
       value={{ ulbID, setUlbID, corporationOptions, setCorporationOptions }}

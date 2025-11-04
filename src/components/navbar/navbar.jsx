@@ -2,15 +2,14 @@ import React, { useContext, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
-import Dropdown from "./dropdown";
-import { UlbContext } from "../context/UlbContex.jsx";
-import { DEFAULT_ULB_ID } from '../types/constatnts.js';
+import Dropdown from "../dropdown.jsx";
+import { UlbContext } from "../../context/UlbContex.jsx";
+import { DEFAULT_ULB_ID } from '../../types/constatnts.js';
 
 const API_BASE_URL = "http://localhost:5000";
 
 const ULB_META_BY_ID = {
   [DEFAULT_ULB_ID]: { title: "Select ULB", logo: "./CorporationLogo1_1670.png" },
-  // example static mapping for a few known ids (optional)
   "4": { title: "Amravati Municipal Corporation", logo: "/images/amravati.png" },
   "5": { title: "धुळे महानगरपालिका, धुळे", logo: "./CorporationLogo1_1670.png" },
   fallback: { title: "ULB", logo: "./CorporationLogo1_1670.png" },
@@ -19,18 +18,20 @@ const ULB_META_BY_ID = {
 export default function Navbar() {
   const { ulbID, setUlbID, corporationOptions, setCorporationOptions } = useContext(UlbContext);
   const location = useLocation();
-
+  // console.log("corporationOptions:",corporationOptions);
+  
   useEffect(() => {
     let mounted = true;
     if (Array.isArray(corporationOptions) && corporationOptions.length > 0) return; // already loaded
 
     const url = `${API_BASE_URL.replace(/\/$/, "")}/CorporationDropdown`;
     const fetchData = async () => {
+      // debugger;
       try {
         const res = await axios.get(url);
         if (!mounted) return;
         const rows = Array.isArray(res?.data?.data) ? res.data.data : [];
-
+        console.log("rows:", rows)
         const options = rows.map((corp) => {
           // tolerate different casing
           const id = corp.CORPID ?? corp.CorpId ?? corp.CORP_ID ?? corp.num_corporation_id ?? corp.CORPID;
@@ -78,13 +79,13 @@ export default function Navbar() {
       transition={{ duration: 0.6, ease: "easeOut" }}
       className="backdrop-blur-md sticky top-0 z-50 shadow-xl "
     >
-      <div className="flex-col items-center justify-center py-4 px-6 max-w-7xl mx-auto">
+      <div className="flex-col items-center justify-center py-2 px-6 max-w-7xl mx-auto">
         <div className="flex items-center justify-between gap-4">
           <motion.img
             key={meta.logo} // animate switch when logo changes
             src={meta.logo}
             alt={meta.title}
-            className="h-10 w-10 md:h-16 md:w-24 object-contain rounded"
+            className="h-10 w-10 md:h-12 md:w-28 object-contain rounded"
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.25 }}
           />
@@ -98,15 +99,14 @@ export default function Navbar() {
             {meta.title}
           </motion.h1>
            <motion.img
-            
             src='./logo31.png'
             alt={meta.title}
-            className="h-10 w-10 md:h-16 md:w-24 object-contain rounded"
+            className="h-10 w-10 md:h-12 md:w-28 object-center rounded"
             whileHover={{ scale: 1.05 }}
             transition={{ duration: 0.25 }}
           />
         </div>
-               <motion.hr className="border-black/10 max-w-7xl mx-auto my-2" initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 0.6, delay: 0.2 }} />
+               <motion.hr className="border-black/10 max-w-7xl mx-auto my-1" initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: 0.6, delay: 0.2 }} />
 
         <div className="flex items-center justify-center gap-4">
           <div className="hidden md:block text-sm text-gray-600">Welcome</div>
